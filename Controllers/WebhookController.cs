@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Google.Cloud.Dialogflow.V2;
+﻿using Google.Cloud.Dialogflow.V2;
 using Google.Protobuf;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,45 +9,64 @@ namespace WebhookDF.Controllers
     [Route("api/[controller]")]
     public class WebhookController : ControllerBase
     {
-		private static readonly JsonParser _jsonParser = new JsonParser(JsonParser.Settings.Default.WithIgnoreUnknownFields(true));
+        private static readonly JsonParser _jsonParser = new JsonParser(JsonParser.Settings.Default.WithIgnoreUnknownFields(true));
 
-		System.Text.Json.JsonSerializerOptions _jsonSetting = new System.Text.Json.JsonSerializerOptions()
-		{
-			PropertyNameCaseInsensitive = true
-		};
-
-		public WebhookController()
-		{
-		}
-
-
-		[HttpGet]
-        public IActionResult Get()
+        System.Text.Json.JsonSerializerOptions _jsonSetting = new System.Text.Json.JsonSerializerOptions()
         {
-			return Ok(new { msg = "deu certo" });
+            PropertyNameCaseInsensitive = true
+        };
+
+        public WebhookController()
+        {
         }
 
-		private bool Autorizado(IHeaderDictionary httpHeader)
-		{
 
-			string basicAuth = httpHeader["Authorization"];
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok(new { msg = "deu certo" });
+        }
 
-			if (!string.IsNullOrEmpty(basicAuth))
-			{
-				basicAuth = basicAuth.Replace("Basic ", "");
+        [HttpPost]
+        public ActionResult GetWebhookResponse([FromBody] System.Text.Json.JsonElement dados)
+        {
+            if (!Autorizado(Request.Headers)) return StatusCode(StatusCodes.Status401Unauthorized);
 
-				byte[] aux = System.Convert.FromBase64String(basicAuth);
-				basicAuth = System.Text.Encoding.UTF8.GetString(aux);
+            var request = _jsonParser.Parse<WebhookRequest>(dados.GetRawText());
+            var response = new WebhookResponse();
+            if (request != null)
+            {
+                var action = request.QueryResult.Action;
 
-				if (basicAuth == "nome:token")
-					return true;
-			}
+                if (action == "ActionTesteWH")
+                {
+                    response.FulfillmentText = "Teste agora";
+                }
+            }
 
-			return false;
-		}
-		
-		
-		
-	}
+            return Ok(response);
+        }
+
+        private bool Autorizado(IHeaderDictionary httpHeader)
+        {
+
+            string basicAuth = httpHeader["Authorization"];
+
+            if (!string.IsNullOrEmpty(basicAuth))
+            {
+                basicAuth = basicAuth.Replace("Basic ", "");
+
+                byte[] aux = System.Convert.FromBase64String(basicAuth);
+                basicAuth = System.Text.Encoding.UTF8.GetString(aux);
+
+                if (basicAuth == "nome:token")
+                    return true;
+            }
+
+            return false;
+        }
+
+
+
+    }
 }
- 
