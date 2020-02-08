@@ -2,6 +2,8 @@
 using Google.Protobuf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebhookDF.Controllers
 {
@@ -42,9 +44,40 @@ namespace WebhookDF.Controllers
                 {
                     response.FulfillmentText = "Teste agora";
                 }
+
+                if (action == "CursoOferta")
+                {
+                    string parametroCurso = ObterParametro(request, "Curso");
+
+                    var curso = new DAL.CursoDAL().ObterCurso(parametroCurso);
+
+
+                    response.FulfillmentText = curso != null ? "Sim temos." : "Não temos";
+                }
+
+                if (action == "CursoValor")
+                {
+                    var contexto = request.QueryResult.OutputContexts;
+                    var contextCurso = contexto[0].Parameters.Fields["Curso"];
+                    string curso = contextCurso.ListValue.Values[0].StringValue;
+
+                    var dado = new DAL.CursoDAL();
+
+                    var cursoDado = dado.ObterCurso(curso);
+
+                    if (contexto.Any(x => x.ContextName.ContextId.Contains("ctxcurso")) && cursoDado != null)
+                    {
+                        response.FulfillmentText = $"A mensalidade para {cursoDado.Nome} é {cursoDado.Preco}.";
+                    }
+                }
             }
 
             return Ok(response);
+        }
+
+        private static string ObterParametro(WebhookRequest request, string parametro)
+        {
+            return request.QueryResult.Parameters.Fields.Where(x => x.Key == parametro).FirstOrDefault().Value.ListValue.Values.First().StringValue;
         }
 
         private bool Autorizado(IHeaderDictionary httpHeader)
