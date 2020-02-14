@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
+using WebhookDF.Helper;
 
 namespace WebhookDF.Controllers
 {
@@ -34,40 +35,31 @@ namespace WebhookDF.Controllers
         {
             if (!Autorizado(Request.Headers)) return StatusCode(StatusCodes.Status401Unauthorized);
 
-            var request = _jsonParser.Parse<WebhookRequest>(dados.GetRawText());
+            var request = ObterRequest(dados);
             var response = new WebhookResponse();
             if (request != null)
             {
-                var action = request.QueryResult.Action;
+                var action = request.ObterAction();
 
-                if (action == "ActionTesteWH")
+                if (request.ActionMatch("ActionTesteWH"))
                 {
-                    response.FulfillmentText = "Teste agora";
+                    response.FulfillmentText = "Teste funcionou";
                 }
 
-                if (action == "CursoOferta")
+                if (request.ActionMatch("CursoOferta"))
                 {
-                    string parametroCurso = ObterParametro(request, "Curso");
+                    string parametroCurso = request.ObterParametro("Curso");
 
-                    var curso = new DAL.CursoDAL().ObterCurso(parametroCurso);
-
-
-                    response.FulfillmentText = curso != null ? "Sim temos." : "Não temos";
+                    response.FulfillmentText = parametroCurso != null ? "Encontrou Parametro." : "Não encontrou";
                 }
 
-                if (action == "CursoValor")
+                if (request.ActionMatch("CursoValor"))
                 {
-                    var contexto = request.QueryResult.OutputContexts;
-                    var contextCurso = contexto[0].Parameters.Fields["Curso"];
-                    string curso = contextCurso.ListValue.Values[0].StringValue;
+                    var parametroContexto = request.ObterParametroContexto("Curso");
 
-                    var dado = new DAL.CursoDAL();
-
-                    var cursoDado = dado.ObterCurso(curso);
-
-                    if (contexto.Any(x => x.ContextName.ContextId.Contains("ctxcurso")) && cursoDado != null)
+                    if (request.PossuiContexto("ctxcurso") && parametroContexto != null)
                     {
-                        response.FulfillmentText = $"A mensalidade para {cursoDado.Nome} é {cursoDado.Preco}.";
+                        response.FulfillmentText = $"Possui o contexto e o parametro veio {parametroContexto}";
                     }
                 }
             }
@@ -75,9 +67,9 @@ namespace WebhookDF.Controllers
             return Ok(response);
         }
 
-        private static string ObterParametro(WebhookRequest request, string parametro)
+        private static WebhookRequest ObterRequest(System.Text.Json.JsonElement dados)
         {
-            return request.QueryResult.Parameters.Fields.Where(x => x.Key == parametro).FirstOrDefault().Value.ListValue.Values.First().StringValue;
+            return _jsonParser.Parse<WebhookRequest>(dados.GetRawText());
         }
 
         private bool Autorizado(IHeaderDictionary httpHeader)

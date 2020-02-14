@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\git\\WebHook\\WebhookDF.csproj": {}
+    "C:\\git\\WebHook\\WebhookDF.csproj": {}
   },
   "projects": {
-    "D:\\git\\WebHook\\WebhookDF.csproj": {
+    "C:\\git\\WebHook\\WebhookDF.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\git\\WebHook\\WebhookDF.csproj",
+        "projectUniqueName": "C:\\git\\WebHook\\WebhookDF.csproj",
         "projectName": "WebhookDF",
-        "projectPath": "D:\\git\\WebHook\\WebhookDF.csproj",
-        "packagesPath": "C:\\Users\\Pos\\.nuget\\packages\\",
-        "outputPath": "D:\\git\\WebHook\\obj\\",
+        "projectPath": "C:\\git\\WebHook\\WebhookDF.csproj",
+        "packagesPath": "C:\\Users\\Mario\\.nuget\\packages\\",
+        "outputPath": "C:\\git\\WebHook\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Pos\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Mario\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -76,7 +73,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
         }
       }
     }
